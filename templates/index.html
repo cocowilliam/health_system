@@ -345,7 +345,6 @@
             font-size: 1rem;
         }
 
-        /* 頁尾版權宣告區塊樣式 */
         .footer-declaration {
             margin-top: 2.5rem;
             padding-top: 1.5rem;
@@ -734,7 +733,7 @@
             </div>
         </div>
 
-        <!-- ★★★ 畫面最底部：作者溥可署名、權利宣告與 GitHub 專案連結 ★★★ -->
+        <!-- 頁尾作者署名、權利宣告與 GitHub 專案連結 -->
         <div class="footer-declaration">
             <span class="footer-badge">OPEN SOURCE • MIT LICENSE</span><br>
             <strong>健康資料管理系統</strong> ｜ 本軟體採 100% 本地端離線儲存閉環架構，嚴格保障個人數據隱私。<br>
@@ -1191,6 +1190,7 @@
             }
         }
 
+        // ★★★ 不論是當前什麼模式，修改成功後一律直接 reload 刷新頁面清空暫存 ★★★
         async function saveEdit() {
             const cycle = currentSearchData.cycles[parseInt(document.getElementById('cycle_selector').value)];
             const payload = {
@@ -1221,11 +1221,7 @@
             alert(result.message);
 
             if (res.ok) {
-                if (!isAdminMode) {
-                    location.reload();
-                } else {
-                    startSearch();
-                }
+                location.reload();
             }
         }
 
