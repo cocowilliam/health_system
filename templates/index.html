@@ -7,6 +7,34 @@
     <title>健康資料管理系統</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        /* 雙欄主容器佈局 */
+        .container {
+            max-width: 1200px !important;
+            margin: 0 auto;
+            padding: 1.5rem 1.2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .entry-card { grid-column: 1; grid-row: 1; }
+        .search-card { grid-column: 2; grid-row: 1; }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .entry-card,
+            .search-card {
+                grid-column: 1;
+            }
+            .entry-card { grid-row: 1; }
+            .search-card { grid-row: 2; }
+        }
+
         .identity-box {
             background: #f8fafc;
             border: 1px solid var(--border);
@@ -380,6 +408,7 @@
             font-weight: 700;
             margin-bottom: 0.4rem;
         }
+
     </style>
 </head>
 
@@ -533,205 +562,214 @@
 
     <div class="container">
 
-        <!-- 新增填報區 -->
-        <div class="card">
-            <h2>定期健康數據填報</h2>
+        <!-- ★★★ 左右雙欄 Grid 容器 ★★★ -->
+        <div class="main-grid">
 
-            <div class="system-badge" id="badge_normal">
-                <span id="badge_month">試算表月份: 載入中...</span>
-                <span id="badge_cycle">填報週期: 載入中...</span>
-            </div>
+            <!-- 左欄：定期健康數據填報 -->
+            <div class="card entry-card">
+                <h2>定期健康數據填報</h2>
 
-            <div class="system-badge" id="badge_admin_select"
-                style="display:none; background:#fef2f2; border-color:#fca5a5;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="color:#991b1b;">指定月份:</span>
-                    <select id="admin_custom_month" class="admin-select"></select>
+                <div class="system-badge" id="badge_normal">
+                    <span id="badge_month">試算表月份: 載入中...</span>
+                    <span id="badge_cycle">填報週期: 載入中...</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="color:#991b1b;">指定週次:</span>
-                    <select id="admin_custom_cycle" class="admin-select">
-                        <option value="第 1 週">第 1 週</option>
-                        <option value="第 2 週">第 2 週</option>
-                        <option value="第 3 週">第 3 週</option>
-                        <option value="第 4 週">第 4 週</option>
-                        <option value="第 5 週">第 5 週</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="tip-badge">
-                💡 初次填寫請填滿各項；之後每週：<b>名字/暱稱擇一</b> ＋ <b><span class="lbl-id">學號</span>/活動編號擇一</b>，其餘兩格自動補齊！
-            </div>
-
-            <div class="identity-box">
-                <div class="identity-grid">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>名字</label>
-                        <input type="text" id="add_name" placeholder="請輸入名字" oninput="trySmartMatch()"
-                            autocomplete="off">
+                <div class="system-badge" id="badge_admin_select"
+                    style="display:none; background:#fef2f2; border-color:#fca5a5;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="color:#991b1b;">指定月份:</span>
+                        <select id="admin_custom_month" class="admin-select"></select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>性別</label>
-                        <select id="add_gender">
-                            <option value="男">男</option>
-                            <option value="女">女</option>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="color:#991b1b;">指定週次:</span>
+                        <select id="admin_custom_cycle" class="admin-select">
+                            <option value="第 1 週">第 1 週</option>
+                            <option value="第 2 週">第 2 週</option>
+                            <option value="第 3 週">第 3 週</option>
+                            <option value="第 4 週">第 4 週</option>
+                            <option value="第 5 週">第 5 週</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>暱稱</label>
-                        <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="trySmartMatch()"
-                            autocomplete="off">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="lbl-id">學號</label>
-                        <input type="text" id="add_sid" placeholder="請輸入代號" oninput="trySmartMatch()"
-                            autocomplete="off">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
-                        <label>活動編號</label>
-                        <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="trySmartMatch()"
-                            autocomplete="off">
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
-                <div class="form-group">
-                    <label>身高 (cm)</label>
-                    <input type="number" id="add_h" step="0.1" placeholder="例: 172.5">
-                </div>
-                <div class="form-group">
-                    <label>體重 (kg)</label>
-                    <input type="number" id="add_w" step="0.1" placeholder="例: 65.0">
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
-                <div class="form-group">
-                    <label>體脂率 (%)</label>
-                    <input type="number" id="add_bf" step="0.1" placeholder="例: 18.5">
-                </div>
-                <div class="form-group">
-                    <label>腰圍 (cm)</label>
-                    <input type="number" id="add_waist" step="0.1" placeholder="例: 78.0">
-                </div>
-            </div>
-
-            <div class="bp-group">
-                <div class="bp-group-header">血壓量測 (依血壓機螢幕從上往下填寫)</div>
-                <div class="bp-box">
-                    <div class="bp-desc"><span class="title">上格：收縮壓 (高壓 / SYS)</span><span class="hint">正常參考值約 90 ~ 120
-                            mmHg</span></div>
-                    <input type="number" id="add_sys" class="bp-input-styled" placeholder="115">
-                </div>
-                <div class="bp-box">
-                    <div class="bp-desc"><span class="title">下格：舒張壓 (低壓 / DIA)</span><span class="hint">正常參考值約 60 ~ 80
-                            mmHg</span></div>
-                    <input type="number" id="add_dia" class="bp-input-styled" placeholder="75">
-                </div>
-            </div>
-
-            <button type="button" onclick="promptReviewBeforeSubmit()">送出並儲存至當月試算表</button>
-        </div>
-
-        <!-- 當月查詢與修改區 -->
-        <div class="card" id="search_card_area">
-            <h2>資料查詢與修改 (僅限當月)</h2>
-
-            <div class="slider-container" id="admin_slider_box" style="display:none;">
-                <div class="slider-header">
-                    <span>⚡ 特權調閱歷史月份：</span>
-                    <span id="slider_month_val" style="color:var(--primary);">--</span>
-                </div>
-                <input type="range" id="month_slider" min="0" max="12" value="12" oninput="onSliderMove(this.value)">
-                <div
-                    style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; margin-top:4px;">
-                    <span>12 個月前</span><span>當前月份</span>
-                </div>
-            </div>
-
-            <div class="search-bar">
-                <input type="text" id="search_query" placeholder="輸入名字、暱稱、學號/工號或活動編號查詢..." autocomplete="off">
-                <button type="button" onclick="startSearch()">搜尋當月資料</button>
-            </div>
-
-            <!-- 查詢展示與修改區塊 -->
-            <div id="edit_section" class="hidden">
-                <input type="hidden" id="edit_sheet">
-                <input type="hidden" id="edit_row_idx">
-                <input type="hidden" id="edit_start_col">
-
-                <div class="system-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">
-                    <span id="badge_user_summary">查無資料</span>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 0.8rem;">
-                    <label style="color:var(--primary);">📅 選擇查看該月的填寫紀錄 (依週次排序)：</label>
-                    <select id="cycle_selector" onchange="onCycleChange()"
-                        style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.95rem;"></select>
-                </div>
-
-                <div id="lock_banner" class="system-badge"
-                    style="background:#fef3c7; color:#92400e; border-color:#fde68a;">
-                    <span id="lock_text">讀取中...</span>
+                <div class="tip-badge">
+                    💡 初次填寫請填滿各項；之後每週：<b>名字/暱稱擇一</b> ＋ <b><span class="lbl-id">學號</span>/活動編號擇一</b>，其餘兩格自動補齊！
                 </div>
 
                 <div class="identity-box">
                     <div class="identity-grid">
                         <div class="form-group" style="margin-bottom:0;">
-                            <label>名字 <span id="tag_name_lock"
-                                    style="font-size:0.75rem; color:#dc2626;">(鎖定)</span></label>
-                            <input type="text" id="edit_name">
+                            <label>名字</label>
+                            <input type="text" id="add_name" placeholder="請輸入名字" oninput="trySmartMatch()"
+                                autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label>性別</label>
-                            <select id="edit_gender">
+                            <select id="add_gender">
                                 <option value="男">男</option>
                                 <option value="女">女</option>
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label>暱稱</label>
-                            <input type="text" id="edit_nick">
+                            <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="trySmartMatch()"
+                                autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label><span class="lbl-id">學號</span> <span id="tag_sid_lock"
-                                    style="font-size:0.75rem; color:#dc2626;">(鎖定)</span></label>
-                            <input type="text" id="edit_sid">
+                            <label class="lbl-id">學號</label>
+                            <input type="text" id="add_sid" placeholder="請輸入代號" oninput="trySmartMatch()"
+                                autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
                             <label>活動編號</label>
-                            <input type="text" id="edit_act_no">
+                            <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="trySmartMatch()"
+                                autocomplete="off">
                         </div>
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
-                    <div class="form-group"><label>身高 (cm)</label><input type="number" id="edit_h" step="0.1"></div>
-                    <div class="form-group"><label>體重 (kg)</label><input type="number" id="edit_w" step="0.1"></div>
+                    <div class="form-group">
+                        <label>身高 (cm)</label>
+                        <input type="number" id="add_h" step="0.1" placeholder="例: 172.5">
+                    </div>
+                    <div class="form-group">
+                        <label>體重 (kg)</label>
+                        <input type="number" id="add_w" step="0.1" placeholder="例: 65.0">
+                    </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
-                    <div class="form-group"><label>體脂率 (%)</label><input type="number" id="edit_bf" step="0.1"></div>
-                    <div class="form-group"><label>腰圍 (cm)</label><input type="number" id="edit_waist" step="0.1"></div>
+                    <div class="form-group">
+                        <label>體脂率 (%)</label>
+                        <input type="number" id="add_bf" step="0.1" placeholder="例: 18.5">
+                    </div>
+                    <div class="form-group">
+                        <label>腰圍 (cm)</label>
+                        <input type="number" id="add_waist" step="0.1" placeholder="例: 78.0">
+                    </div>
                 </div>
 
                 <div class="bp-group">
-                    <div class="bp-group-header">修改血壓量測</div>
+                    <div class="bp-group-header">血壓量測 (依血壓機螢幕從上往下填寫)</div>
                     <div class="bp-box">
-                        <div class="bp-desc"><span class="title">收縮壓 (高壓 / SYS)</span></div><input type="number"
-                            id="edit_sys" class="bp-input-styled">
+                        <div class="bp-desc"><span class="title">上格：收縮壓 (高壓 / SYS)</span><span class="hint">正常參考值約 90 ~
+                                120 mmHg</span></div>
+                        <input type="number" id="add_sys" class="bp-input-styled" placeholder="115">
                     </div>
                     <div class="bp-box">
-                        <div class="bp-desc"><span class="title">舒張壓 (低壓 / DIA)</span></div><input type="number"
-                            id="edit_dia" class="bp-input-styled">
+                        <div class="bp-desc"><span class="title">下格：舒張壓 (低壓 / DIA)</span><span class="hint">正常參考值約 60 ~
+                                80 mmHg</span></div>
+                        <input type="number" id="add_dia" class="bp-input-styled" placeholder="75">
                     </div>
                 </div>
 
-                <button type="button" id="save_btn" class="success-btn" onclick="saveEdit()">確認修改 (自動記錄修改時間)</button>
+                <button type="button" onclick="promptReviewBeforeSubmit()">送出並儲存至當月試算表</button>
             </div>
-        </div>
+
+            <!-- 右欄：資料查詢與修改 (僅限當月) -->
+            <div class="card search-card" id="search_card_area">
+                <h2>資料查詢與修改 (僅限當月)</h2>
+
+                <div class="slider-container" id="admin_slider_box" style="display:none;">
+                    <div class="slider-header">
+                        <span>⚡ 特權調閱歷史月份：</span>
+                        <span id="slider_month_val" style="color:var(--primary);">--</span>
+                    </div>
+                    <input type="range" id="month_slider" min="0" max="12" value="12"
+                        oninput="onSliderMove(this.value)">
+                    <div
+                        style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+                        <span>12 個月前</span><span>當前月份</span>
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search_query" placeholder="輸入名字、暱稱、學號/工號或活動編號查詢..." autocomplete="off">
+                    <button type="button" onclick="startSearch()">搜尋當月資料</button>
+                </div>
+
+                <!-- 查詢展示與修改區塊 -->
+                <div id="edit_section" class="hidden">
+                    <input type="hidden" id="edit_sheet">
+                    <input type="hidden" id="edit_row_idx">
+                    <input type="hidden" id="edit_start_col">
+
+                    <div class="system-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">
+                        <span id="badge_user_summary">查無資料</span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0.8rem;">
+                        <label style="color:var(--primary);">📅 選擇查看該月的填寫紀錄 (依週次排序)：</label>
+                        <select id="cycle_selector" onchange="onCycleChange()"
+                            style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.95rem;"></select>
+                    </div>
+
+                    <div id="lock_banner" class="system-badge"
+                        style="background:#fef3c7; color:#92400e; border-color:#fde68a;">
+                        <span id="lock_text">讀取中...</span>
+                    </div>
+
+                    <div class="identity-box">
+                        <div class="identity-grid">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>名字 <span id="tag_name_lock"
+                                        style="font-size:0.75rem; color:#dc2626;">(鎖定)</span></label>
+                                <input type="text" id="edit_name">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>性別</label>
+                                <select id="edit_gender">
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>暱稱</label>
+                                <input type="text" id="edit_nick">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label><span class="lbl-id">學號</span> <span id="tag_sid_lock"
+                                        style="font-size:0.75rem; color:#dc2626;">(鎖定)</span></label>
+                                <input type="text" id="edit_sid">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
+                                <label>活動編號</label>
+                                <input type="text" id="edit_act_no">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                        <div class="form-group"><label>身高 (cm)</label><input type="number" id="edit_h" step="0.1"></div>
+                        <div class="form-group"><label>體重 (kg)</label><input type="number" id="edit_w" step="0.1"></div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                        <div class="form-group"><label>體脂率 (%)</label><input type="number" id="edit_bf" step="0.1">
+                        </div>
+                        <div class="form-group"><label>腰圍 (cm)</label><input type="number" id="edit_waist" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="bp-group">
+                        <div class="bp-group-header">修改血壓量測</div>
+                        <div class="bp-box">
+                            <div class="bp-desc"><span class="title">收縮壓 (高壓 / SYS)</span></div><input type="number"
+                                id="edit_sys" class="bp-input-styled">
+                        </div>
+                        <div class="bp-box">
+                            <div class="bp-desc"><span class="title">舒張壓 (低壓 / DIA)</span></div><input type="number"
+                                id="edit_dia" class="bp-input-styled">
+                        </div>
+                    </div>
+
+                    <button type="button" id="save_btn" class="success-btn" onclick="saveEdit()">確認修改
+                        (自動記錄修改時間)</button>
+                </div>
+            </div>
+
+        </div> <!-- 結束 main-grid -->
 
         <!-- 頁尾作者署名、權利宣告與 GitHub 專案連結 -->
         <div class="footer-declaration">
@@ -825,21 +863,33 @@
                 alert('若勾選需要管理員權限，帳號與密碼為必填項目！');
                 return;
             }
+            
+            const button = document.querySelector('.btn-launch');
+            button.disabled = true;
+            button.innerText = '儲存中...';
+            try {
+                const res = await fetch('/api/initial_setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ org_type: orgType, enable_admin: enableAdmin, account: acc, password: pwd })
+                });
+                const result = await res.json();
 
-            const res = await fetch('/api/initial_setup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ org_type: orgType, enable_admin: enableAdmin, account: acc, password: pwd })
-            });
-
-            if (res.ok) {
-                document.getElementById('wizard_modal').style.display = 'none';
-                if (enableAdmin) {
-                    alert(`🎉 系統初始部署完成！\n\n【管理員提示】：\n日後若需啟用特權修改功能，請在「名字」輸入帳號、「暱稱」輸入密碼，點擊送出即可直接解鎖 1 分鐘管理員特權模式！`);
+                if (res.ok) {
+                    document.getElementById('wizard_modal').style.display = 'none';
+                    alert(enableAdmin
+                        ? '🎉 系統初始部署完成！特權帳號與密碼已儲存。'
+                        : '🎉 系統初始部署完成！已為您就緒。');
+                    location.reload();
                 } else {
-                    alert('🎉 系統初始部署完成！已為您就緒。');
+                    alert(result.message || '設定儲存失敗，請再試一次！');
                 }
-                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('無法連線至系統服務，請確認程式仍在執行。');
+            } finally {
+                button.disabled = false;
+                button.innerText = '儲存設定並啟動系統';
             }
         }
 
@@ -926,7 +976,7 @@
             const gender = document.getElementById('add_gender').value;
             const act_no = document.getElementById('add_act_no').value.trim();
 
-            // 1. 若「名字」與「暱稱」皆有輸入，第一優先發起特權驗證
+            // 1. 特權登入檢查
             if (name && nick) {
                 try {
                     const checkRes = await fetch('/api/admin_login', {
@@ -938,7 +988,7 @@
 
                     if (checkRes.ok) {
                         startAdminSession();
-                        alert(checkResult.message);
+                        alert('身分驗證通過，已啟用限定特權操作。');
                         document.getElementById('add_name').value = '';
                         document.getElementById('add_nick').value = '';
                         return;
@@ -948,7 +998,7 @@
                 }
             }
 
-            // 2. 一般同學填報流程
+            // 2. 常規數值檢查
             const payload = {
                 is_admin: isAdminMode,
                 custom_month: isAdminMode ? document.getElementById('admin_custom_month').value : '',
@@ -1044,7 +1094,7 @@
                     renderSearchResult(u);
                 }
             } else {
-                alert(`⚠️ 在當月 [${queryMonth}] 試算表中查無此人資料！\n若您本月尚未填寫過，請先至上方完整填寫第一次資料以建立檔案。`);
+                alert(`⚠️ 在當月 [${queryMonth}] 試算表中查無此人資料！\n若您本月尚未填寫過，請先至左方完整填寫第一次資料以建立檔案。`);
                 document.getElementById('edit_section').classList.add('hidden');
             }
         }
@@ -1107,10 +1157,6 @@
             const editSec = document.getElementById('edit_section');
             editSec.classList.remove('hidden');
             editSec.style.display = 'block';
-
-            setTimeout(() => {
-                editSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
         }
 
         function onCycleChange() { refreshCycleView(); }
@@ -1190,7 +1236,6 @@
             }
         }
 
-        // ★★★ 不論是當前什麼模式，修改成功後一律直接 reload 刷新頁面清空暫存 ★★★
         async function saveEdit() {
             const cycle = currentSearchData.cycles[parseInt(document.getElementById('cycle_selector').value)];
             const payload = {
