@@ -37,7 +37,8 @@
             display: inline-block;
         }
 
-        input:disabled {
+        input:disabled,
+        select:disabled {
             background-color: #f1f5f9 !important;
             color: #64748b !important;
             cursor: not-allowed;
@@ -76,10 +77,6 @@
             width: auto;
         }
 
-        #admin_logout_btn:hover {
-            background: #b91c1c;
-        }
-
         .admin-select {
             padding: 0.25rem 0.5rem;
             border: 1px solid #f87171;
@@ -90,7 +87,7 @@
             font-weight: bold;
         }
 
-        /* 再次核對彈窗樣式 */
+        /* 彈窗遮罩 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -98,11 +95,191 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(2px);
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
             z-index: 10000;
             justify-content: center;
             align-items: center;
+        }
+
+        /* 開機嚮導專屬樣式 */
+        .wizard-card {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 460px;
+            width: 90%;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+            border: 1px solid #e2e8f0;
+            animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .wizard-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.6rem;
+        }
+
+        .wizard-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        .wizard-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .wizard-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0 0 1.5rem 0;
+            line-height: 1.45;
+        }
+
+        .org-toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+        }
+
+        .org-option-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.75rem 0.6rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        .org-option-card:hover {
+            border-color: #93c5fd;
+            background: #f0f7ff;
+        }
+
+        .org-option-card.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .org-option-card .icon {
+            font-size: 1.3rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .org-option-card .title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .org-option-card .sub {
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .switch-container {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            transition: border-color 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .switch-container:hover {
+            border-color: #cbd5e1;
+        }
+
+        .switch-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .switch-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .switch-info .main {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .switch-info .sub {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        #wiz_admin_fields {
+            background: #ffffff;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.8rem;
+        }
+
+        .input-hint-tag {
+            font-size: 0.72rem;
+            color: #2563eb;
+            font-weight: 600;
+            background: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .btn-launch {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-launch:hover {
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
         }
 
         .modal-card {
@@ -115,17 +292,6 @@
             border: 1px solid var(--border);
         }
 
-        .modal-warning {
-            background: #fef2f2;
-            border: 1px solid #f87171;
-            color: #991b1b;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-
         .review-table {
             width: 100%;
             border-collapse: collapse;
@@ -134,13 +300,13 @@
         }
 
         .review-table td {
-            padding: 0.45rem 0.6rem;
+            padding: 0.4rem 0.6rem;
             border-bottom: 1px solid #f1f5f9;
         }
 
         .review-table td.label {
             color: #64748b;
-            width: 40%;
+            width: 42%;
             font-weight: 600;
         }
 
@@ -154,55 +320,178 @@
             gap: 0.8rem;
         }
 
-        .modal-btn-back {
+        .sec-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .sec-input-wrapper input {
+            width: 100%;
+            padding-right: 40px;
+            font-family: inherit;
+            letter-spacing: 2px;
+        }
+
+        .sec-eye-btn {
+            position: absolute;
+            right: 10px;
+            background: transparent !important;
+            border: none !important;
+            color: #64748b !important;
+            cursor: pointer;
+            padding: 4px;
+            width: auto !important;
+            font-size: 1rem;
+        }
+
+        /* 頁尾版權宣告區塊樣式 */
+        .footer-declaration {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #cbd5e1;
+            text-align: center;
+            font-size: 0.82rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .footer-declaration a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-declaration a:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .footer-badge {
+            display: inline-block;
             background: #e2e8f0;
             color: #334155;
-            width: 40%;
-        }
-
-        .modal-btn-back:hover {
-            background: #cbd5e1;
-        }
-
-        .modal-btn-confirm {
-            background: #dc2626;
-            color: #fff;
-            width: 60%;
-        }
-
-        .modal-btn-confirm:hover {
-            background: #b91c1c;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- 特權模式頂部倒數控制條 -->
     <div id="admin_bar">
         <span id="admin_timer_text">特權中: 60s</span>
         <button type="button" id="admin_logout_btn" onclick="logoutAdmin()">登出特權</button>
     </div>
 
-    <!-- 再次確認檢查彈窗 -->
-    <div class="modal-overlay" id="review_modal">
-        <div class="modal-card">
-            <h3
-                style="margin-top:0; color:#0f172a; font-size:1.15rem; border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem;">
-                🔍 請再次檢查您所填寫的資料
-            </h3>
+    <!-- 1. 初次開機初始化設定嚮導彈窗 -->
+    <div class="modal-overlay" id="wizard_modal">
+        <div class="wizard-card">
+            <div class="wizard-header">
+                <div class="wizard-icon">🛡️</div>
+                <div>
+                    <h3 class="wizard-title">系統初始部署設定</h3>
+                </div>
+            </div>
+            <p class="wizard-desc">偵測到此為全新安裝目錄，請在 10 秒內完成基礎環境配置：</p>
 
-            <div class="modal-warning">
-                ⚠️ <b>特別警告：</b><br>
-                資料一旦送出，<b>【名字】與【學號】將永久鎖定，在系統上不得再更改！</b>請務必仔細核對下列欄位是否完全正確。
+            <label style="font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:0.4rem; display:block;">1.
+                選擇部屬場域</label>
+            <div class="org-toggle-group">
+                <div class="org-option-card active" id="card_school" onclick="selectOrgType('school')">
+                    <span class="icon">🏫</span>
+                    <span class="title">學校單位</span>
+                    <span class="sub">輸入格標記為「學號」</span>
+                </div>
+                <div class="org-option-card" id="card_company" onclick="selectOrgType('company')">
+                    <span class="icon">🏢</span>
+                    <span class="title">公司企業</span>
+                    <span class="sub">輸入格標記為「工號」</span>
+                </div>
+            </div>
+            <input type="hidden" id="wiz_org_type" value="school">
+
+            <div class="switch-container">
+                <label class="switch-label-row">
+                    <div class="switch-info">
+                        <span class="main">啟用管理員特權模式</span>
+                        <span class="sub">可自訂專屬暗碼，允許補登與歷史修正</span>
+                    </div>
+                    <input type="checkbox" id="wiz_enable_admin" onchange="toggleWizardAdmin(this.checked)"
+                        style="width:20px; height:20px; accent-color:#2563eb; cursor:pointer;">
+                </label>
+
+                <div id="wiz_admin_fields" style="display:none;">
+                    <div class="form-group" style="margin-bottom:0.75rem;">
+                        <label>管理員帳號 <span class="input-hint-tag">日後於「名字」填寫</span></label>
+                        <input type="text" id="wiz_acc" placeholder="請設定帳號 (例: admin)" autocomplete="off">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>管理員密碼 <span class="input-hint-tag">日後於「暱稱」填寫</span></label>
+                        <input type="password" id="wiz_pwd" placeholder="請設定防護密碼" autocomplete="new-password">
+                    </div>
+                </div>
             </div>
 
+            <button type="button" class="btn-launch" onclick="submitWizard()">儲存設定並啟動系統</button>
+        </div>
+    </div>
+
+    <!-- 2. 防偷查個資：核對學號/工號彈窗 -->
+    <div class="modal-overlay" id="security_verify_modal">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:#dc2626;">🔒 身分驗證防護</h3>
+            <p style="font-size:0.85rem; color:#475569;">為保護隱私個資、防止他人偷查，請輸入該員對應的<b id="sec_modal_id_label">學號</b>以解鎖紀錄：
+            </p>
+
+            <div class="form-group">
+                <label id="sec_input_label">請輸入驗證碼</label>
+                <div class="sec-input-wrapper">
+                    <input type="password" id="sec_verify_input" placeholder="請輸入完整的學號/工號" autocomplete="new-password"
+                        autocorrect="off" autocapitalize="off" spellcheck="false"
+                        onkeydown="if(event.key==='Enter') confirmSecurityVerify()">
+                    <button type="button" class="sec-eye-btn" onclick="toggleSecEye()" title="顯示/隱藏代碼">👁️</button>
+                </div>
+            </div>
+
+            <div class="modal-btn-group">
+                <button type="button" onclick="closeSecurityModal()"
+                    style="background:#cbd5e1; color:#334155; width:40%;">取消查詢</button>
+                <button type="button" onclick="confirmSecurityVerify()"
+                    style="background:#2563eb; width:60%;">驗證並解鎖</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 新資料初次建立核對彈窗 -->
+    <div class="modal-overlay" id="review_modal">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:#0f172a; border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem;">
+                🔍 請再次核對您填寫的資料
+            </h3>
+            <div
+                style="background:#fef2f2; border:1px solid #f87171; color:#991b1b; padding:0.75rem; border-radius:8px; font-size:0.85rem; margin-bottom:1rem;">
+                ⚠️ <b>送出警告：</b>資料一旦正式寫入，<b>【名字】與【<span class="lbl-id">學號</span>】將永久鎖定不得更改！</b>
+            </div>
             <table class="review-table">
                 <tr>
                     <td class="label">名字：</td>
                     <td class="val" id="rev_name" style="color:#dc2626;"></td>
                 </tr>
                 <tr>
-                    <td class="label">學號：</td>
+                    <td class="label">性別：</td>
+                    <td class="val" id="rev_gender"></td>
+                </tr>
+                <tr>
+                    <td class="label"><span class="lbl-id">學號</span>：</td>
                     <td class="val" id="rev_sid" style="color:#dc2626;"></td>
                 </tr>
                 <tr>
@@ -222,6 +511,10 @@
                     <td class="val" id="rev_w"></td>
                 </tr>
                 <tr>
+                    <td class="label">體脂率：</td>
+                    <td class="val" id="rev_bf"></td>
+                </tr>
+                <tr>
                     <td class="label">腰圍：</td>
                     <td class="val" id="rev_waist"></td>
                 </tr>
@@ -230,17 +523,18 @@
                     <td class="val" id="rev_bp"></td>
                 </tr>
             </table>
-
             <div class="modal-btn-group">
-                <button type="button" class="modal-btn-back" onclick="closeReviewModal()">返回修改</button>
-                <button type="button" class="modal-btn-confirm" onclick="finalSubmitData()">確認無誤，正式寫入</button>
+                <button type="button" onclick="closeReviewModal()"
+                    style="background:#e2e8f0; color:#334155; width:40%;">返回修改</button>
+                <button type="button" onclick="finalSubmitData()"
+                    style="background:#dc2626; color:#fff; width:60%;">確認無誤，正式寫入</button>
             </div>
         </div>
     </div>
 
     <div class="container">
 
-        <!-- 1. 新增健康資料 -->
+        <!-- 新增填報區 -->
         <div class="card">
             <h2>定期健康數據填報</h2>
 
@@ -268,58 +562,73 @@
             </div>
 
             <div class="tip-badge">
-                💡 初次填寫請填滿 4 格；之後每週：<b>名字/暱稱擇一</b> ＋ <b>學號/活動編號擇一</b>，其餘兩格自動補齊！
+                💡 初次填寫請填滿各項；之後每週：<b>名字/暱稱擇一</b> ＋ <b><span class="lbl-id">學號</span>/活動編號擇一</b>，其餘兩格自動補齊！
             </div>
 
             <div class="identity-box">
                 <div class="identity-grid">
                     <div class="form-group" style="margin-bottom:0;">
                         <label>名字</label>
-                        <input type="text" id="add_name" placeholder="請輸入名字" oninput="trySmartMatch()">
+                        <input type="text" id="add_name" placeholder="請輸入名字" oninput="trySmartMatch()"
+                            autocomplete="off">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>性別</label>
+                        <select id="add_gender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>暱稱</label>
-                        <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="trySmartMatch()">
+                        <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="trySmartMatch()"
+                            autocomplete="off">
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
-                        <label>學號</label>
-                        <input type="text" id="add_sid" placeholder="請輸入學號" oninput="trySmartMatch()">
+                        <label class="lbl-id">學號</label>
+                        <input type="text" id="add_sid" placeholder="請輸入代號" oninput="trySmartMatch()"
+                            autocomplete="off">
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
                         <label>活動編號</label>
-                        <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="trySmartMatch()">
+                        <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="trySmartMatch()"
+                            autocomplete="off">
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>身高 (cm)</label>
-                <input type="number" id="add_h" step="0.1" placeholder="例: 172.5">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                <div class="form-group">
+                    <label>身高 (cm)</label>
+                    <input type="number" id="add_h" step="0.1" placeholder="例: 172.5">
+                </div>
+                <div class="form-group">
+                    <label>體重 (kg)</label>
+                    <input type="number" id="add_w" step="0.1" placeholder="例: 65.0">
+                </div>
             </div>
-            <div class="form-group">
-                <label>體重 (kg) <span style="font-weight:normal; color:#64748b; font-size:0.8rem;">(BMI 將自動由 Excel
-                        計算)</span></label>
-                <input type="number" id="add_w" step="0.1" placeholder="例: 65.0">
-            </div>
-            <div class="form-group">
-                <label>腰圍 (cm)</label>
-                <input type="number" id="add_waist" step="0.1" placeholder="例: 78.0">
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                <div class="form-group">
+                    <label>體脂率 (%)</label>
+                    <input type="number" id="add_bf" step="0.1" placeholder="例: 18.5">
+                </div>
+                <div class="form-group">
+                    <label>腰圍 (cm)</label>
+                    <input type="number" id="add_waist" step="0.1" placeholder="例: 78.0">
+                </div>
             </div>
 
             <div class="bp-group">
                 <div class="bp-group-header">血壓量測 (依血壓機螢幕從上往下填寫)</div>
                 <div class="bp-box">
-                    <div class="bp-desc">
-                        <span class="title">上格：收縮壓 (高壓 / SYS)</span>
-                        <span class="hint">正常參考值約 90 ~ 120 mmHg</span>
-                    </div>
+                    <div class="bp-desc"><span class="title">上格：收縮壓 (高壓 / SYS)</span><span class="hint">正常參考值約 90 ~ 120
+                            mmHg</span></div>
                     <input type="number" id="add_sys" class="bp-input-styled" placeholder="115">
                 </div>
                 <div class="bp-box">
-                    <div class="bp-desc">
-                        <span class="title">下格：舒張壓 (低壓 / DIA)</span>
-                        <span class="hint">正常參考值約 60 ~ 80 mmHg</span>
-                    </div>
+                    <div class="bp-desc"><span class="title">下格：舒張壓 (低壓 / DIA)</span><span class="hint">正常參考值約 60 ~ 80
+                            mmHg</span></div>
                     <input type="number" id="add_dia" class="bp-input-styled" placeholder="75">
                 </div>
             </div>
@@ -327,11 +636,11 @@
             <button type="button" onclick="promptReviewBeforeSubmit()">送出並儲存至當月試算表</button>
         </div>
 
-        <!-- 2. 當月資料查詢與修改 -->
-        <div class="card">
+        <!-- 當月查詢與修改區 -->
+        <div class="card" id="search_card_area">
             <h2>資料查詢與修改 (僅限當月)</h2>
 
-            <div class="slider-container" id="admin_slider_box" style="display: none;">
+            <div class="slider-container" id="admin_slider_box" style="display:none;">
                 <div class="slider-header">
                     <span>⚡ 特權調閱歷史月份：</span>
                     <span id="slider_month_val" style="color:var(--primary);">--</span>
@@ -339,16 +648,16 @@
                 <input type="range" id="month_slider" min="0" max="12" value="12" oninput="onSliderMove(this.value)">
                 <div
                     style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; margin-top:4px;">
-                    <span>12 個月前</span>
-                    <span>當前月份</span>
+                    <span>12 個月前</span><span>當前月份</span>
                 </div>
             </div>
 
             <div class="search-bar">
-                <input type="text" id="search_query" placeholder="輸入名字、暱稱、學號或活動編號查詢當月紀錄...">
-                <button type="button" onclick="searchData()">搜尋當月資料</button>
+                <input type="text" id="search_query" placeholder="輸入名字、暱稱、學號/工號或活動編號查詢..." autocomplete="off">
+                <button type="button" onclick="startSearch()">搜尋當月資料</button>
             </div>
 
+            <!-- 查詢展示與修改區塊 -->
             <div id="edit_section" class="hidden">
                 <input type="hidden" id="edit_sheet">
                 <input type="hidden" id="edit_row_idx">
@@ -377,24 +686,37 @@
                             <input type="text" id="edit_name">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
+                            <label>性別</label>
+                            <select id="edit_gender">
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
                             <label>暱稱</label>
                             <input type="text" id="edit_nick">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label>學號 <span id="tag_sid_lock"
+                            <label><span class="lbl-id">學號</span> <span id="tag_sid_lock"
                                     style="font-size:0.75rem; color:#dc2626;">(鎖定)</span></label>
                             <input type="text" id="edit_sid">
                         </div>
-                        <div class="form-group" style="margin-bottom:0;">
+                        <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
                             <label>活動編號</label>
                             <input type="text" id="edit_act_no">
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group"><label>身高 (cm)</label><input type="number" id="edit_h" step="0.1"></div>
-                <div class="form-group"><label>體重 (kg)</label><input type="number" id="edit_w" step="0.1"></div>
-                <div class="form-group"><label>腰圍 (cm)</label><input type="number" id="edit_waist" step="0.1"></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                    <div class="form-group"><label>身高 (cm)</label><input type="number" id="edit_h" step="0.1"></div>
+                    <div class="form-group"><label>體重 (kg)</label><input type="number" id="edit_w" step="0.1"></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
+                    <div class="form-group"><label>體脂率 (%)</label><input type="number" id="edit_bf" step="0.1"></div>
+                    <div class="form-group"><label>腰圍 (cm)</label><input type="number" id="edit_waist" step="0.1"></div>
+                </div>
 
                 <div class="bp-group">
                     <div class="bp-group-header">修改血壓量測</div>
@@ -412,21 +734,55 @@
             </div>
         </div>
 
+        <!-- ★★★ 畫面最底部：作者溥可署名、權利宣告與 GitHub 專案連結 ★★★ -->
+        <div class="footer-declaration">
+            <span class="footer-badge">OPEN SOURCE • MIT LICENSE</span><br>
+            <strong>健康資料管理系統</strong> ｜ 本軟體採 100% 本地端離線儲存閉環架構，嚴格保障個人數據隱私。<br>
+            作者：<strong>溥可</strong> (William Pu) ｜ 版權所有 © 2026 All Rights Reserved.<br>
+            開源專案原始碼：<a href="https://github.com/cocowilliam/health_system" target="_blank" rel="noopener noreferrer">
+                <svg height="14" width="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: -2px;">
+                    <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                    </path>
+                </svg>
+                github.com/cocowilliam/health_system
+            </a>
+        </div>
+
     </div>
 
     <script>
-        let monthsList = [], selectedMonth = '', systemCurrentMonth = '', systemCurrentCycle = '', currentSearchData = null;
-        let isAdminMode = false;
-        let adminTimer = null;
-        let remainingSeconds = 60;
-        let pendingPayload = null;
+        let monthsList = [], selectedMonth = '', systemCurrentMonth = '', systemCurrentCycle = '';
+        let currentSearchData = null, isAdminMode = false, adminTimer = null, remainingSeconds = 60;
+        let pendingPayload = null, currentIdLabel = "學號", pendingVerifiedUser = null;
 
         async function initSystem() {
             const res = await fetch('/api/system_info');
             const info = await res.json();
+
+            if (!info.initialized) {
+                document.getElementById('wizard_modal').style.display = 'flex';
+                return;
+            }
+
+            applySystemConfig(info);
+        }
+
+        function selectOrgType(type) {
+            document.getElementById('wiz_org_type').value = type;
+            document.getElementById('card_school').classList.toggle('active', type === 'school');
+            document.getElementById('card_company').classList.toggle('active', type === 'company');
+        }
+
+        function applySystemConfig(info) {
+            currentIdLabel = info.id_label;
             systemCurrentMonth = info.current_month;
             systemCurrentCycle = info.current_cycle;
             selectedMonth = systemCurrentMonth;
+
+            document.querySelectorAll('.lbl-id').forEach(el => el.innerText = currentIdLabel);
+            document.getElementById('sec_modal_id_label').innerText = currentIdLabel;
+            document.getElementById('sec_input_label').innerText = `請輸入對應的${currentIdLabel}`;
 
             document.getElementById('badge_month').innerText = '目前試算表: ' + info.current_month;
             document.getElementById('badge_cycle').innerText = '填報週期: ' + info.current_cycle;
@@ -456,6 +812,38 @@
             });
         }
 
+        function toggleWizardAdmin(checked) {
+            document.getElementById('wiz_admin_fields').style.display = checked ? 'block' : 'none';
+        }
+
+        async function submitWizard() {
+            const orgType = document.getElementById('wiz_org_type').value;
+            const enableAdmin = document.getElementById('wiz_enable_admin').checked;
+            const acc = document.getElementById('wiz_acc').value.trim();
+            const pwd = document.getElementById('wiz_pwd').value.trim();
+
+            if (enableAdmin && (!acc || !pwd)) {
+                alert('若勾選需要管理員權限，帳號與密碼為必填項目！');
+                return;
+            }
+
+            const res = await fetch('/api/initial_setup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ org_type: orgType, enable_admin: enableAdmin, account: acc, password: pwd })
+            });
+
+            if (res.ok) {
+                document.getElementById('wizard_modal').style.display = 'none';
+                if (enableAdmin) {
+                    alert(`🎉 系統初始部署完成！\n\n【管理員提示】：\n日後若需啟用特權修改功能，請在「名字」輸入帳號、「暱稱」輸入密碼，點擊送出即可直接解鎖 1 分鐘管理員特權模式！`);
+                } else {
+                    alert('🎉 系統初始部署完成！已為您就緒。');
+                }
+                location.reload();
+            }
+        }
+
         function onSliderMove(idx) {
             if (isAdminMode) {
                 selectedMonth = monthsList[idx];
@@ -466,10 +854,8 @@
         function startAdminSession() {
             isAdminMode = true;
             remainingSeconds = 60;
-
             document.getElementById('admin_bar').style.display = 'flex';
             document.getElementById('admin_timer_text').innerText = `特權中: ${remainingSeconds}s`;
-
             document.getElementById('badge_normal').style.display = 'none';
             document.getElementById('badge_admin_select').style.display = 'flex';
             document.getElementById('admin_slider_box').style.display = 'block';
@@ -480,30 +866,23 @@
             adminTimer = setInterval(() => {
                 remainingSeconds--;
                 document.getElementById('admin_timer_text').innerText = `特權中: ${remainingSeconds}s`;
-                if (remainingSeconds <= 0) {
-                    logoutAdmin('特權模式已超過 1 分鐘無操作，已自動登出！');
-                }
+                if (remainingSeconds <= 0) logoutAdmin('特權模式已超過 1 分鐘無操作，已自動登出！');
             }, 1000);
         }
 
         function resetAdminInactivityTimer() {
-            if (isAdminMode) {
-                remainingSeconds = 60;
-            }
+            if (isAdminMode) remainingSeconds = 60;
         }
 
         function logoutAdmin(msg = '已主動解除特權模式。') {
             if (!isAdminMode) return;
             isAdminMode = false;
             clearInterval(adminTimer);
-
             document.getElementById('admin_bar').style.display = 'none';
             document.getElementById('badge_normal').style.display = 'flex';
             document.getElementById('badge_admin_select').style.display = 'none';
-
             document.getElementById('admin_slider_box').style.display = 'none';
             selectedMonth = systemCurrentMonth;
-
             if (msg) alert(msg);
             if (currentSearchData) refreshCycleView();
         }
@@ -537,48 +916,59 @@
                 fill('add_nick', data.nick);
                 fill('add_sid', data.sid);
                 fill('add_act_no', data.act_no);
+                if (data.gender) document.getElementById('add_gender').value = data.gender;
             }
         }
 
         async function promptReviewBeforeSubmit() {
             const name = document.getElementById('add_name').value.trim();
-            const sid = document.getElementById('add_sid').value.trim();
             const nick = document.getElementById('add_nick').value.trim();
+            const sid = document.getElementById('add_sid').value.trim();
+            const gender = document.getElementById('add_gender').value;
             const act_no = document.getElementById('add_act_no').value.trim();
 
-            if (sid && name) {
-                const checkRes = await fetch('/api/admin_login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, student_id: sid })
-                });
-                const checkResult = await checkRes.json();
-                if (checkRes.ok) {
-                    startAdminSession();
-                    alert(checkResult.message);
-                    document.getElementById('add_name').value = '';
-                    document.getElementById('add_sid').value = '';
-                    return;
+            // 1. 若「名字」與「暱稱」皆有輸入，第一優先發起特權驗證
+            if (name && nick) {
+                try {
+                    const checkRes = await fetch('/api/admin_login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: name, nick: nick })
+                    });
+                    const checkResult = await checkRes.json();
+
+                    if (checkRes.ok) {
+                        startAdminSession();
+                        alert(checkResult.message);
+                        document.getElementById('add_name').value = '';
+                        document.getElementById('add_nick').value = '';
+                        return;
+                    }
+                } catch (err) {
+                    console.error('特權檢驗通訊異常', err);
                 }
             }
 
+            // 2. 一般同學填報流程
             const payload = {
                 is_admin: isAdminMode,
                 custom_month: isAdminMode ? document.getElementById('admin_custom_month').value : '',
                 custom_cycle: isAdminMode ? document.getElementById('admin_custom_cycle').value : '',
                 name: name,
+                gender: gender,
                 nick: nick,
                 sid: sid,
                 act_no: act_no,
                 height: document.getElementById('add_h').value.trim(),
                 weight: document.getElementById('add_w').value.trim(),
+                body_fat: document.getElementById('add_bf').value.trim(),
                 waist: document.getElementById('add_waist').value.trim(),
                 sys_bp: document.getElementById('add_sys').value.trim(),
                 dia_bp: document.getElementById('add_dia').value.trim()
             };
 
-            if (!payload.height || !payload.weight || !payload.waist || !payload.sys_bp || !payload.dia_bp) {
-                alert('請完整填寫身高、體重、腰圍與高低血壓！');
+            if (!payload.height || !payload.weight || !payload.body_fat || !payload.waist || !payload.sys_bp || !payload.dia_bp) {
+                alert('身高、體重、體脂率、腰圍與高低血壓皆為必填！');
                 return;
             }
 
@@ -596,11 +986,13 @@
             } else {
                 pendingPayload = payload;
                 document.getElementById('rev_name').innerText = payload.name || '(未填)';
+                document.getElementById('rev_gender').innerText = payload.gender;
                 document.getElementById('rev_sid').innerText = payload.sid || '(未填)';
                 document.getElementById('rev_nick').innerText = payload.nick || '(未填)';
                 document.getElementById('rev_act_no').innerText = payload.act_no || '(未填)';
                 document.getElementById('rev_h').innerText = `${payload.height} cm`;
                 document.getElementById('rev_w').innerText = `${payload.weight} kg`;
+                document.getElementById('rev_bf').innerText = `${payload.body_fat} %`;
                 document.getElementById('rev_waist').innerText = `${payload.waist} cm`;
                 document.getElementById('rev_bp').innerText = `${payload.sys_bp} / ${payload.dia_bp} mmHg`;
 
@@ -622,70 +1014,120 @@
                 body: JSON.stringify(pendingPayload)
             });
             const result = await res.json();
-
             closeReviewModal();
             alert(result.message);
-
-            if (res.ok) {
-                location.reload();
-            }
+            if (res.ok) location.reload();
         }
 
-        async function searchData() {
+        async function startSearch() {
             const query = document.getElementById('search_query').value.trim();
-            if (!query) return alert('請輸入欲查詢的名字、學號、暱稱或活動編號！');
+            if (!query) return alert(`請輸入欲查詢的名字、暱稱、${currentIdLabel}或活動編號！`);
 
             const queryMonth = isAdminMode ? selectedMonth : systemCurrentMonth;
-
             const res = await fetch(`/api/search?month=${queryMonth}&query=${encodeURIComponent(query)}`);
             const result = await res.json();
 
             if (res.ok) {
-                currentSearchData = result.data;
-                document.getElementById('edit_sheet').value = currentSearchData.sheet_name;
-                document.getElementById('edit_row_idx').value = currentSearchData.row_idx;
-                document.getElementById('badge_user_summary').innerText = `活動編號 #${currentSearchData.activity_no} ｜ 名字: ${currentSearchData.name || '無'} ｜ 暱稱: ${currentSearchData.nickname || '無'} ｜ 學號: ${currentSearchData.student_id || '無'}`;
-
-                const selector = document.getElementById('cycle_selector');
-                selector.innerHTML = '';
-
-                let preferredIndex = -1;
-                currentSearchData.cycles.forEach((c, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = idx;
-                    opt.innerText = c.cycle_label;
-                    selector.appendChild(opt);
-
-                    if (c.cycle_label.includes(currentSearchData.system_cycle)) {
-                        preferredIndex = idx;
-                    }
-                });
-
-                if (preferredIndex !== -1) {
-                    selector.value = preferredIndex;
-                } else {
-                    selector.value = currentSearchData.cycles.length - 1;
+                const u = result.data;
+                if (isAdminMode) {
+                    renderSearchResult(u);
+                    return;
                 }
 
-                refreshCycleView();
-                document.getElementById('edit_section').classList.remove('hidden');
+                if (query !== u.student_id) {
+                    pendingVerifiedUser = u;
+                    const inputEl = document.getElementById('sec_verify_input');
+                    inputEl.value = '';
+                    inputEl.type = 'password';
+                    document.getElementById('security_verify_modal').style.display = 'flex';
+                    setTimeout(() => inputEl.focus(), 150);
+                } else {
+                    renderSearchResult(u);
+                }
             } else {
-                alert(`⚠️ 在當月 [${queryMonth}] 試算表中查無此人資料！\n若您本月尚未填寫過，請先至上方「新增填報區」完整填寫第一次資料以建立檔案。`);
+                alert(`⚠️ 在當月 [${queryMonth}] 試算表中查無此人資料！\n若您本月尚未填寫過，請先至上方完整填寫第一次資料以建立檔案。`);
                 document.getElementById('edit_section').classList.add('hidden');
             }
+        }
+
+        function toggleSecEye() {
+            const el = document.getElementById('sec_verify_input');
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('security_verify_modal').style.display = 'none';
+            document.getElementById('sec_verify_input').value = '';
+            pendingVerifiedUser = null;
+        }
+
+        function confirmSecurityVerify() {
+            const inputVal = document.getElementById('sec_verify_input').value.trim();
+            if (!pendingVerifiedUser) return;
+
+            if (inputVal === String(pendingVerifiedUser.student_id).trim()) {
+                const userToRender = pendingVerifiedUser;
+                closeSecurityModal();
+                renderSearchResult(userToRender);
+            } else {
+                alert(`❌ 身分核對失敗！所輸入的${currentIdLabel}不正確，已拒絕存取以防個資外洩。`);
+                document.getElementById('sec_verify_input').value = '';
+            }
+        }
+
+        function renderSearchResult(data) {
+            if (!data) return;
+            currentSearchData = data;
+            document.getElementById('edit_sheet').value = currentSearchData.sheet_name;
+            document.getElementById('edit_row_idx').value = currentSearchData.row_idx;
+            document.getElementById('badge_user_summary').innerText = `活動編號 #${currentSearchData.activity_no} ｜ 名字: ${currentSearchData.name || '無'} ｜ 暱稱: ${currentSearchData.nickname || '無'} ｜ ${currentIdLabel}: ${currentSearchData.student_id || '無'}`;
+
+            const selector = document.getElementById('cycle_selector');
+            selector.innerHTML = '';
+
+            let preferredIndex = -1;
+            currentSearchData.cycles.forEach((c, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = c.cycle_label;
+                selector.appendChild(opt);
+
+                if (c.cycle_label.includes(currentSearchData.system_cycle)) {
+                    preferredIndex = idx;
+                }
+            });
+
+            if (preferredIndex !== -1) {
+                selector.value = preferredIndex;
+            } else {
+                selector.value = currentSearchData.cycles.length - 1;
+            }
+
+            refreshCycleView();
+
+            const editSec = document.getElementById('edit_section');
+            editSec.classList.remove('hidden');
+            editSec.style.display = 'block';
+
+            setTimeout(() => {
+                editSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
 
         function onCycleChange() { refreshCycleView(); }
 
         function refreshCycleView() {
+            if (!currentSearchData || !currentSearchData.cycles.length) return;
             const cycle = currentSearchData.cycles[parseInt(document.getElementById('cycle_selector').value)];
             document.getElementById('edit_start_col').value = cycle.start_col;
             document.getElementById('edit_name').value = currentSearchData.name || '';
+            document.getElementById('edit_gender').value = currentSearchData.gender || '男';
             document.getElementById('edit_nick').value = currentSearchData.nickname || '';
             document.getElementById('edit_sid').value = currentSearchData.student_id || '';
             document.getElementById('edit_act_no').value = currentSearchData.activity_no || '';
             document.getElementById('edit_h').value = cycle.height;
             document.getElementById('edit_w').value = cycle.weight;
+            document.getElementById('edit_bf').value = cycle.body_fat;
             document.getElementById('edit_waist').value = cycle.waist;
             document.getElementById('edit_sys').value = cycle.sys_bp;
             document.getElementById('edit_dia').value = cycle.dia_bp;
@@ -702,7 +1144,7 @@
             const sidInput = document.getElementById('edit_sid');
             const tagNameLock = document.getElementById('tag_name_lock');
             const tagSidLock = document.getElementById('tag_sid_lock');
-            const otherInputs = document.querySelectorAll('#edit_section input[type="text"]:not(#edit_name):not(#edit_sid), #edit_section input[type="number"]');
+            const otherInputs = document.querySelectorAll('#edit_section input[type="text"]:not(#edit_name):not(#edit_sid), #edit_section input[type="number"], #edit_gender');
 
             if (isAdminMode) {
                 banner.style.background = '#fee2e2';
@@ -721,7 +1163,7 @@
             } else if (canEditWeekData) {
                 banner.style.background = '#dcfce7';
                 banner.style.color = '#15803d';
-                lockText.innerText = '🟢 本週數據：處於可編輯期間（名字與學號已防護鎖定，如需修改請由 Excel 調整）。';
+                lockText.innerText = `🟢 本週數據：處於可編輯期間（名字與${currentIdLabel}已防護鎖定，如需修改請由 Excel 調整）。`;
                 saveBtn.style.display = 'block';
 
                 nameInput.disabled = true;
@@ -758,11 +1200,13 @@
                 cycle_label: cycle.cycle_label,
                 is_admin: isAdminMode,
                 name: document.getElementById('edit_name').value.trim(),
+                gender: document.getElementById('edit_gender').value,
                 nick: document.getElementById('edit_nick').value.trim(),
                 sid: document.getElementById('edit_sid').value.trim(),
                 act_no: document.getElementById('edit_act_no').value.trim(),
                 height: document.getElementById('edit_h').value.trim(),
                 weight: document.getElementById('edit_w').value.trim(),
+                body_fat: document.getElementById('edit_bf').value.trim(),
                 waist: document.getElementById('edit_waist').value.trim(),
                 sys_bp: document.getElementById('edit_sys').value.trim(),
                 dia_bp: document.getElementById('edit_dia').value.trim()
@@ -780,14 +1224,13 @@
                 if (!isAdminMode) {
                     location.reload();
                 } else {
-                    searchData();
+                    startSearch();
                 }
             }
         }
 
         window.onload = initSystem;
     </script>
-
 </body>
 
 </html>
