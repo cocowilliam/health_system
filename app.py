@@ -1,7 +1,5 @@
 import os
 import sys
-import time
-import threading
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify
 import excel_manager
@@ -20,38 +18,6 @@ app = Flask(
 
 excel_manager.init_storage()
 
-# ★★★ 核心：心跳與自動關閉看門狗 ★★★
-last_heartbeat = time.time()
-server_started = False
-
-def watchdog():
-    """看門狗：當伺服器啟動超過 8 秒，且已超過 5 秒沒收到任何網頁心跳，自動徹底結束處理程序"""
-    global last_heartbeat
-    while True:
-        time.sleep(1)
-        if server_started and (time.time() - last_heartbeat > 5):
-            # 所有分頁皆已關閉，退出程式並釋放 Port
-            os._exit(0)
-
-threading.Thread(target=watchdog, daemon=True).start()
-
-@app.route('/api/heartbeat', methods=['POST'])
-def heartbeat():
-    global last_heartbeat, server_started
-    last_heartbeat = time.time()
-    server_started = True
-    return jsonify({"status": "alive"})
-
-@app.route('/api/shutdown', methods=['POST'])
-def shutdown():
-    """瀏覽器分頁關閉時觸發"""
-    def do_exit():
-        time.sleep(0.5)
-        os._exit(0)
-    threading.Thread(target=do_exit).start()
-    return jsonify({"status": "shutting_down"})
-
-# 以下原有路由保持不變：
 def get_current_cycle_info():
     now = datetime.now()
     month_str = now.strftime('%Y-%m')
@@ -66,11 +32,30 @@ def index():
 @app.route('/api/system_info', methods=['GET'])
 def system_info():
     month_str, cycle_label = get_current_cycle_info()
+    cfg = admin_guard.get_system_config()
     return jsonify({
+        "initialized": cfg["initialized"],
+        "org_type": cfg["org_type"],
+        "id_label": "工號" if cfg["org_type"] == "company" else "學號",
         "current_month": month_str,
         "current_cycle": cycle_label,
         "date": datetime.now().strftime('%Y-%m-%d')
     })
+
+@app.route('/api/initial_setup', methods=['POST'])
+def initial_setup():
+    """第一次開啟程式時，儲存管理員權限與機構類型（學校/公司）"""
+    data = request.get_json(silent=True) or {}
+    org_type = data.get('org_type', 'school')
+    enable_admin = bool(data.get('enable_admin', False))
+    account = data.get('account', '')
+    password = data.get('password', '')
+
+    admin_guard.save_initial_setup(org_type, enable_admin, account, password)
+    id_label = "工號" if org_type == "company" else "學號"
+    excel_manager.init_storage(id_label)
+
+    return jsonify({"status": "success", "message": "初始化設定成功！"})
 
 @app.route('/api/smart_match', methods=['POST'])
 def smart_match():
@@ -94,15 +79,17 @@ def smart_match():
 def admin_login():
     data = request.get_json(silent=True) or {}
     name = data.get('name', '')
-    sid = data.get('student_id', '')
-    if admin_guard.check_admin_credentials(name, sid):
-        return jsonify({"status": "success", "message": "特權帳號密碼驗證通過！已啟用管理員特權模式。"})
+    nick = data.get('nick', '')  # 暱稱作為密碼
+    if admin_guard.check_admin_credentials(name, nick):
+        return jsonify({"status": "success", "message": "管理員特權身分驗證通過！已啟用 1 分鐘特權模式。"})
     return jsonify({"status": "error", "message": "非管理員帳號或密碼錯誤！"}), 401
 
 @app.route('/api/add', methods=['POST'])
 def add():
     data = request.get_json(silent=True) or {}
     current_month, current_cycle = get_current_cycle_info()
+    cfg = admin_guard.get_system_config()
+    id_label = "工號" if cfg["org_type"] == "company" else "學號"
 
     is_admin = bool(data.get('is_admin', False))
     if is_admin and data.get('custom_month') and data.get('custom_cycle'):
@@ -117,14 +104,17 @@ def add():
             target_month,
             target_cycle,
             data.get('name'),
+            data.get('gender', '男'),
             data.get('nick'),
             data.get('sid'),
             data.get('act_no'),
             data.get('height'),
             data.get('weight'),
+            data.get('body_fat'),
             data.get('waist'),
             data.get('sys_bp'),
-            data.get('dia_bp')
+            data.get('dia_bp'),
+            id_field_name=id_label
         )
         return jsonify({"status": "success", "message": f"成功寫入 Excel 的 [{target_month}] 試算表 ({target_cycle})！"})
     except Exception as e:
@@ -166,11 +156,13 @@ def update():
             int(data['row_idx']),
             int(data['start_col']),
             data.get('name'),
+            data.get('gender', '男'),
             data.get('nick'),
             data.get('sid'),
             data.get('act_no'),
             data.get('height'),
             data.get('weight'),
+            data.get('body_fat'),
             data.get('waist'),
             data.get('sys_bp'),
             data.get('dia_bp'),

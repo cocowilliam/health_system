@@ -1,7 +1,6 @@
 import os
 import sys
 
-# 取得 .exe 所在的外部資料夾路徑
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
 else:
@@ -9,40 +8,66 @@ else:
 
 CONFIG_PATH = os.path.join(BASE_DIR, 'admin_config.txt')
 
-ENABLED = True
-DEFAULT_ACCOUNT = "health"
-DEFAULT_PASSWORD = "lth0612"
+def ascii_encrypt(text: str, shift: int = 5) -> str:
+    """對字串進行簡單 ASCII 位移加密"""
+    return "".join(chr((ord(c) + shift) % 65536) for c in text)
 
-def ensure_config_exists():
-    """每次啟動檢查：若偵測不到 admin_config.txt 則自動生成"""
+def ascii_decrypt(cipher: str, shift: int = 5) -> str:
+    """ASCII 位移解密"""
+    return "".join(chr((ord(c) - shift) % 65536) for c in cipher)
+
+def is_system_initialized():
+    """檢查系統是否已完成第一次設定"""
+    return os.path.exists(CONFIG_PATH)
+
+def save_initial_setup(org_type, enable_admin, account="", password=""):
+    """儲存第一次精靈設定"""
+    enc_acc = ascii_encrypt(account) if enable_admin else ""
+    enc_pwd = ascii_encrypt(password) if enable_admin else ""
+    enabled_str = "true" if enable_admin else "false"
+
+    with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+        f.write("# 系統基礎組態設定檔\n")
+        f.write(f"ORG_TYPE={org_type}\n")
+        f.write(f"ADMIN_ENABLED={enabled_str}\n")
+        f.write(f"ENC_ACCOUNT={enc_acc}\n")
+        f.write(f"ENC_PASSWORD={enc_pwd}\n")
+
+def get_system_config():
+    """讀取當前系統設定（場域類型、特權是否啟用）"""
     if not os.path.exists(CONFIG_PATH):
-        try:
-            with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
-                f.write("# 管理員特權帳號密碼設定檔 (可隨時用記事本修改)\n")
-                f.write(f"ACCOUNT={DEFAULT_ACCOUNT}\n")
-                f.write(f"PASSWORD={DEFAULT_PASSWORD}\n")
-        except Exception:
-            pass
+        return {"initialized": False, "org_type": "school", "admin_enabled": False}
 
-def get_admin_credentials():
-    """讀取帳密設定，若檔案遺失則重新生成"""
-    ensure_config_exists()
-    account = DEFAULT_ACCOUNT
-    password = DEFAULT_PASSWORD
+    org_type = "school"
+    admin_enabled = False
+    acc = ""
+    pwd = ""
+
     try:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
-                if line.startswith('ACCOUNT='):
-                    account = line.split('ACCOUNT=', 1)[1].strip()
-                elif line.startswith('PASSWORD='):
-                    password = line.split('PASSWORD=', 1)[1].strip()
+                if line.startswith('ORG_TYPE='):
+                    org_type = line.split('=', 1)[1].strip().lower()
+                elif line.startswith('ADMIN_ENABLED='):
+                    admin_enabled = line.split('=', 1)[1].strip().lower() == 'true'
+                elif line.startswith('ENC_ACCOUNT='):
+                    acc = ascii_decrypt(line.split('=', 1)[1].strip())
+                elif line.startswith('ENC_PASSWORD='):
+                    pwd = ascii_decrypt(line.split('=', 1)[1].strip())
     except Exception:
         pass
-    return account, password
 
-def check_admin_credentials(name_input, sid_input):
-    if not ENABLED:
+    return {
+        "initialized": True,
+        "org_type": org_type,
+        "admin_enabled": admin_enabled,
+        "account": acc,
+        "password": pwd
+    }
+
+def check_admin_credentials(name_input, nick_input):
+    cfg = get_system_config()
+    if not cfg["admin_enabled"]:
         return False
-    account, password = get_admin_credentials()
-    return (str(sid_input).strip() == account) and (str(name_input).strip() == password)
+    return (str(name_input).strip() == cfg["account"]) and (str(nick_input).strip() == cfg["password"])
