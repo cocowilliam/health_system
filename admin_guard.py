@@ -42,6 +42,8 @@ def get_system_config():
     admin_enabled = False
     acc = ""
     pwd = ""
+    raw_acc = ""
+    raw_pwd = ""
 
     try:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
@@ -52,9 +54,11 @@ def get_system_config():
                 elif line.startswith('ADMIN_ENABLED='):
                     admin_enabled = line.split('=', 1)[1].strip().lower() == 'true'
                 elif line.startswith('ENC_ACCOUNT='):
-                    acc = ascii_decrypt(line.split('=', 1)[1].strip())
+                    raw_acc = line.split('=', 1)[1].strip()
+                    acc = ascii_decrypt(raw_acc)
                 elif line.startswith('ENC_PASSWORD='):
-                    pwd = ascii_decrypt(line.split('=', 1)[1].strip())
+                    raw_pwd = line.split('=', 1)[1].strip()
+                    pwd = ascii_decrypt(raw_pwd)
     except Exception:
         pass
 
@@ -63,11 +67,17 @@ def get_system_config():
         "org_type": org_type,
         "admin_enabled": admin_enabled,
         "account": acc,
-        "password": pwd
+        "password": pwd,
+        "raw_account": raw_acc,
+        "raw_password": raw_pwd
     }
 
 def check_admin_credentials(name_input, nick_input):
     cfg = get_system_config()
     if not cfg["admin_enabled"]:
         return False
-    return (str(name_input).strip() == cfg["account"]) and (str(nick_input).strip() == cfg["password"])
+    name = str(name_input).strip()
+    password = str(nick_input).strip()
+    account_ok = name == cfg["account"] or name == cfg.get("raw_account", "")
+    password_ok = password == cfg["password"] or password == cfg.get("raw_password", "")
+    return account_ok and password_ok

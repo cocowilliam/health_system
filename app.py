@@ -64,13 +64,16 @@ def smart_match():
     if not month_str:
         month_str, _ = get_current_cycle_info()
 
-    matched = excel_manager.match_existing_user(
-        month_str,
-        data.get('name'),
-        data.get('nick'),
-        data.get('sid'),
-        data.get('act_no')
-    )
+    try:
+        matched = excel_manager.match_existing_user(
+            month_str,
+            data.get('name'),
+            data.get('nick'),
+            data.get('sid'),
+            data.get('act_no')
+        )
+    except PermissionError:
+        return jsonify({"status": "error", "message": "Excel 檔案目前無法存取，請關閉 Excel 後重試。"}), 423
     if matched:
         return jsonify({"status": "matched", "data": matched})
     return jsonify({"status": "none"})
@@ -100,7 +103,7 @@ def add():
         target_cycle = current_cycle
 
     try:
-        excel_manager.add_user_record(
+        success, message = excel_manager.add_user_record(
             target_month,
             target_cycle,
             data.get('name'),
@@ -116,6 +119,8 @@ def add():
             data.get('dia_bp'),
             id_field_name=id_label
         )
+        if not success:
+            return jsonify({"status": "error", "message": message}), 400
         return jsonify({"status": "success", "message": f"成功寫入 Excel 的 [{target_month}] 試算表 ({target_cycle})！"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
@@ -128,7 +133,10 @@ def search():
     if not month:
         month = current_month
 
-    user_data = excel_manager.search_user_all_cycles(month, query)
+    try:
+        user_data = excel_manager.search_user_all_cycles(month, query)
+    except PermissionError:
+        return jsonify({"status": "error", "message": "Excel 檔案目前無法存取，請關閉 Excel 後重試。"}), 423
     if user_data:
         user_data["system_month"] = current_month
         user_data["system_cycle"] = current_cycle
@@ -151,7 +159,7 @@ def update():
             return jsonify({"status": "error", "message": "非本週數據已過期鎖定！"}), 403
 
     try:
-        excel_manager.update_user_record(
+        success, message = excel_manager.update_user_record(
             sheet_name,
             int(data['row_idx']),
             int(data['start_col']),
@@ -168,6 +176,8 @@ def update():
             data.get('dia_bp'),
             is_admin=is_admin
         )
+        if not success:
+            return jsonify({"status": "error", "message": message}), 400
         return jsonify({"status": "success", "message": "資料修改成功！"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
