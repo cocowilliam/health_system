@@ -189,7 +189,7 @@ def _setup_fixed_headers(ws, id_label="學號/工號"):
 
 
 def match_existing_user(month_str, name="", nickname="", student_id="", act_id="", gender=""):
-    """Signature matches /api/smart_match: month, name, nick, sid, act_no."""
+    """Match existing records by identifiers; names are not unique."""
     init_storage()
     with FILE_LOCK:
         wb = _load_workbook(write=False)
@@ -200,6 +200,7 @@ def match_existing_user(month_str, name="", nickname="", student_id="", act_id="
             else:
                 sheets = wb.worksheets
 
+            matches = []
             for ws in sheets:
                 if ws is None or ws.max_row < 3:
                     continue
@@ -211,19 +212,39 @@ def match_existing_user(month_str, name="", nickname="", student_id="", act_id="
                         "nickname": _text(ws.cell(row=row, column=4).value),
                         "student_id": _text(ws.cell(row=row, column=5).value),
                     }
-                    hit = (
+                    if (
                         (_text(student_id) and values["student_id"] == _text(student_id))
                         or (_text(act_id) and values["act_id"] == _text(act_id))
-                        or (
-                            _text(name)
-                            and _text(nickname)
-                            and values["name"].lower() == _text(name).lower()
-                            and values["nickname"].lower() == _text(nickname).lower()
-                        )
-                    )
-                    if hit:
-                        return values
-            return None
+                    ):
+                        matches.append(values)
+            return matches[0] if len(matches) == 1 else None
+        finally:
+            wb.close()
+
+
+def get_next_activity_no(month_str):
+    init_storage()
+    with FILE_LOCK:
+        wb = _load_workbook(write=False)
+        try:
+            ws = _resolve_existing_sheet(wb, month_str) if month_str else None
+            if ws is None:
+                return "1"
+
+            used_ids = {
+                _text(ws.cell(row=row, column=1).value)
+                for row in range(3, ws.max_row + 1)
+                if _text(ws.cell(row=row, column=1).value)
+            }
+            numeric_ids = [
+                int(activity_id)
+                for activity_id in used_ids
+                if re.fullmatch(r"\d+", activity_id)
+            ]
+            next_id = max(numeric_ids, default=0) + 1
+            while str(next_id) in used_ids:
+                next_id += 1
+            return str(next_id)
         finally:
             wb.close()
 
@@ -381,15 +402,49 @@ def add_user_record(month, week, name, gender, nickname, student_id, act_id,
         wb = openpyxl.load_workbook(FILE_PATH)
         try:
             ws = get_or_create_sheet(wb, month, id_field_name)
-            target_row = None
             sid = _text(student_id)
+            activity_id = _text(act_id)
+            matching_rows = []
+            activity_matching_rows = []
             for row in range(3, ws.max_row + 1):
-                if sid and _text(ws.cell(row=row, column=5).value) == sid:
-                    target_row = row
-                    break
+                sid_matches = sid and _text(ws.cell(row=row, column=5).value) == sid
+                activity_matches = activity_id and _text(ws.cell(row=row, column=1).value) == activity_id
+                if sid_matches or activity_matches:
+                    matching_rows.append(row)
+                if activity_matches:
+                    activity_matching_rows.append(row)
+
+            if len(matching_rows) > 1:
+                return False, "學號與活動編號對應到不同使用者，請核對後再送出！"
+            target_row = matching_rows[0] if matching_rows else None
+            if target_row in activity_matching_rows and sid:
+                existing_sid = _text(ws.cell(row=target_row, column=5).value)
+                if existing_sid and existing_sid != sid:
+                    return False, "此活動編號已屬於其他學號，請核對後再送出！"
+
+            if target_row is not None and sid == _text(ws.cell(row=target_row, column=5).value):
+                existing_identity = {
+                    "名字": (_text(name), _text(ws.cell(row=target_row, column=2).value), True),
+                    "性別": (_text(gender), _text(ws.cell(row=target_row, column=3).value), False),
+                    "暱稱": (_text(nickname), _text(ws.cell(row=target_row, column=4).value), True),
+                    "活動編號": (activity_id, _text(ws.cell(row=target_row, column=1).value), True),
+                }
+                mismatched_fields = [
+                    label
+                    for label, (provided, existing, case_insensitive) in existing_identity.items()
+                    if provided and existing and (
+                        provided.lower() != existing.lower() if case_insensitive else provided != existing
+                    )
+                ]
+                if mismatched_fields:
+                    return False, (
+                        f"此{_text(id_field_name) or '學號/工號'}已存在，但"
+                        f"{'、'.join(mismatched_fields)}與既有資料不一致；"
+                        f"請確認{_text(id_field_name) or '學號/工號'}或修正資料後再送出！"
+                    )
 
             conflict = check_identity_conflict(
-                ws, _text(act_id), _text(nickname), sid, target_row
+                ws, activity_id, _text(nickname), sid, target_row
             )
             if conflict:
                 return False, conflict

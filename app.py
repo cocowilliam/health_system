@@ -16,6 +16,17 @@ app = Flask(
     static_folder=os.path.join(BUNDLE_DIR, 'static')
 )
 
+RECORDS_LOCKED_MESSAGE = (
+    "偵測到 records.xlsx 已被打開，請先存檔並關閉該檔案，再重新執行一次動作。"
+)
+
+
+def api_error_response(error, default_status=400):
+    if isinstance(error, PermissionError):
+        return jsonify({"status": "error", "message": RECORDS_LOCKED_MESSAGE}), 423
+    return jsonify({"status": "error", "message": str(error)}), default_status
+
+
 excel_manager.init_storage()
 
 def get_current_cycle_info():
@@ -53,7 +64,10 @@ def initial_setup():
 
     admin_guard.save_initial_setup(org_type, enable_admin, account, password)
     id_label = "工號" if org_type == "company" else "學號"
-    excel_manager.init_storage(id_label)
+    try:
+        excel_manager.init_storage(id_label)
+    except PermissionError as exc:
+        return api_error_response(exc)
 
     return jsonify({"status": "success", "message": "初始化設定成功！"})
 
@@ -72,11 +86,15 @@ def smart_match():
             data.get('sid'),
             data.get('act_no')
         )
-    except PermissionError:
-        return jsonify({"status": "error", "message": "Excel 檔案目前無法存取，請關閉 Excel 後重試。"}), 423
+    except PermissionError as exc:
+        return api_error_response(exc)
     if matched:
         return jsonify({"status": "matched", "data": matched})
-    return jsonify({"status": "none"})
+    try:
+        next_act_no = excel_manager.get_next_activity_no(month_str)
+    except PermissionError as exc:
+        return api_error_response(exc)
+    return jsonify({"status": "none", "next_act_no": next_act_no})
 
 @app.route('/api/admin_login', methods=['POST'])
 def admin_login():
@@ -122,8 +140,8 @@ def add():
         if not success:
             return jsonify({"status": "error", "message": message}), 400
         return jsonify({"status": "success", "message": f"成功寫入 Excel 的 [{target_month}] 試算表 ({target_cycle})！"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
+    except Exception as exc:
+        return api_error_response(exc)
 
 @app.route('/api/search', methods=['GET'])
 def search():
@@ -135,8 +153,8 @@ def search():
 
     try:
         user_data = excel_manager.search_user_all_cycles(month, query)
-    except PermissionError:
-        return jsonify({"status": "error", "message": "Excel 檔案目前無法存取，請關閉 Excel 後重試。"}), 423
+    except PermissionError as exc:
+        return api_error_response(exc)
     if user_data:
         user_data["system_month"] = current_month
         user_data["system_cycle"] = current_cycle
@@ -179,8 +197,8 @@ def update():
         if not success:
             return jsonify({"status": "error", "message": message}), 400
         return jsonify({"status": "success", "message": "資料修改成功！"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
+    except Exception as exc:
+        return api_error_response(exc)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=False)

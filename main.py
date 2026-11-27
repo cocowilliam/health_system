@@ -50,10 +50,11 @@ if __name__ == '__main__':
     window = webview.create_window(
         title="健康資料管理系統",
         url=f"http://127.0.0.1:{PORT}",
-        width=1100,      # 調寬以容納左右雙欄
-        height=880,
+        width=1400,      # 預設尺寸可容納雙欄內容
+        height=1000,
         resizable=True,
-        min_size=(680, 640)
+        min_size=(680, 640),
+        maximized=True
     )
 
 
