@@ -65,6 +65,25 @@
             display: inline-block;
         }
 
+        .smart-match-notice {
+            padding: 0.65rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin: -0.5rem 0 1rem;
+        }
+
+        .smart-match-notice.warning {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
+        }
+
+        .smart-match-notice.success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
         input:disabled,
         select:disabled {
             background-color: #f1f5f9 !important;
@@ -593,40 +612,41 @@
                 </div>
 
                 <div class="tip-badge">
-                    💡 初次填寫請填滿各項；之後每週：<b>名字/暱稱擇一</b> ＋ <b><span class="lbl-id">學號</span>/活動編號擇一</b>，其餘兩格自動補齊！
+                    💡 初次填寫請填滿各項；之後每週填寫：<b>名字/暱稱擇一</b> ＋ <b><span class="lbl-id">學號</span>/活動編號擇一</b> ＋ <b>性別</b>，符合三項即可自動補齊其餘空白欄位。新資料會自動帶入下一個活動編號。自動帶入內容可直接修改或刪除；要重設整張表單，按 <b>Ctrl+R</b>（Mac：<b>⌘+R</b>）重新整理頁面。
                 </div>
 
                 <div class="identity-box">
                     <div class="identity-grid">
                         <div class="form-group" style="margin-bottom:0;">
                             <label>名字</label>
-                            <input type="text" id="add_name" placeholder="請輸入名字" oninput="trySmartMatch()"
+                            <input type="text" id="add_name" placeholder="請輸入名字" oninput="onIdentityInput(this)"
                                 autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label>性別</label>
-                            <select id="add_gender">
+                            <label>生理性別</label>
+                            <select id="add_gender" onchange="trySmartMatch()">
                                 <option value="男">男</option>
                                 <option value="女">女</option>
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label>暱稱</label>
-                            <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="trySmartMatch()"
+                            <input type="text" id="add_nick" placeholder="請輸入暱稱" oninput="onIdentityInput(this)"
                                 autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label class="lbl-id">學號</label>
-                            <input type="text" id="add_sid" placeholder="請輸入代號" oninput="trySmartMatch()"
+                            <input type="text" id="add_sid" placeholder="請輸入代號" oninput="onIdentityInput(this)"
                                 autocomplete="off">
                         </div>
                         <div class="form-group" style="margin-bottom:0; grid-column: span 2;">
                             <label>活動編號</label>
-                            <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="trySmartMatch()"
+                            <input type="text" id="add_act_no" placeholder="例: 1, 2, A01" oninput="onIdentityInput(this)"
                                 autocomplete="off">
                         </div>
                     </div>
                 </div>
+                <div id="smart_match_notice" class="smart-match-notice hidden" role="status" aria-live="polite"></div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem;">
                     <div class="form-group">
@@ -792,6 +812,8 @@
         let monthsList = [], selectedMonth = '', systemCurrentMonth = '', systemCurrentCycle = '';
         let currentSearchData = null, isAdminMode = false, adminTimer = null, remainingSeconds = 60;
         let pendingPayload = null, currentIdLabel = "學號", pendingVerifiedUser = null;
+        const manuallyClearedIdentityFields = new Set();
+        let smartMatchRequestId = 0;
 
         async function initSystem() {
             const res = await fetch('/api/system_info');
@@ -936,13 +958,68 @@
             if (currentSearchData) refreshCycleView();
         }
 
+        function onIdentityInput(field) {
+            if (field.classList.contains('auto-filled')) {
+                if (!field.value.trim()) manuallyClearedIdentityFields.add(field.id);
+                else manuallyClearedIdentityFields.delete(field.id);
+                field.classList.remove('auto-filled');
+            } else if (field.value.trim()) {
+                manuallyClearedIdentityFields.delete(field.id);
+            }
+            trySmartMatch();
+        }
+
+        function setSmartMatchNotice(message, isWarning = false) {
+            const notice = document.getElementById('smart_match_notice');
+            notice.innerText = message;
+            notice.classList.toggle('hidden', !message);
+            notice.classList.toggle('warning', isWarning);
+            notice.classList.toggle('success', Boolean(message) && !isWarning);
+        }
+
+        function clearAutoFilledIdentityFields() {
+            ['add_name', 'add_nick', 'add_sid', 'add_act_no'].forEach(id => {
+                const field = document.getElementById(id);
+                if (field.classList.contains('auto-filled')) {
+                    field.value = '';
+                    field.classList.remove('auto-filled');
+                }
+            });
+        }
+
+        function getIdentityMismatches(payload, matchedUser) {
+            const fields = [
+                ['name', 'name', '名字', true],
+                ['nick', 'nickname', '暱稱', true],
+                ['sid', 'student_id', currentIdLabel, false],
+                ['act_no', 'act_id', '活動編號', false],
+                ['gender', 'gender', '性別', false]
+            ];
+            return fields
+                .filter(([inputKey, userKey, , caseInsensitive]) => {
+                    const inputValue = String(payload[inputKey] || '').trim();
+                    const userValue = String(matchedUser[userKey] || '').trim();
+                    if (!inputValue || !userValue) return false;
+                    return caseInsensitive
+                        ? inputValue.toLocaleLowerCase() !== userValue.toLocaleLowerCase()
+                        : inputValue !== userValue;
+                })
+                .map(([, , label]) => label);
+        }
+
         async function trySmartMatch() {
+            const requestId = ++smartMatchRequestId;
+            clearAutoFilledIdentityFields();
             const name = document.getElementById('add_name').value.trim();
             const nick = document.getElementById('add_nick').value.trim();
             const sid = document.getElementById('add_sid').value.trim();
             const act_no = document.getElementById('add_act_no').value.trim();
+            const gender = document.getElementById('add_gender').value;
 
-            if ((!name && !nick) || (!sid && !act_no)) return;
+            if ((!name && !nick) || (!sid && !act_no) || !gender) {
+                setSmartMatchNotice('');
+                return;
+            }
 
             const chosenMonth = isAdminMode ? document.getElementById('admin_custom_month').value : '';
 
@@ -952,20 +1029,42 @@
                 body: JSON.stringify({ name, nick, sid, act_no, month: chosenMonth })
             });
             const result = await res.json();
+            if (requestId !== smartMatchRequestId) return;
             if (result.status === 'matched') {
                 const data = result.data;
                 const fill = (id, val) => {
                     const el = document.getElementById(id);
-                    if (!el.value.trim() && val) {
+                    if (!el.value.trim() && val && !manuallyClearedIdentityFields.has(id)) {
                         el.value = val;
                         el.classList.add('auto-filled');
                     }
                 };
                 fill('add_name', data.name);
-                fill('add_nick', data.nick);
-                fill('add_sid', data.sid);
-                fill('add_act_no', data.act_no);
-                if (data.gender) document.getElementById('add_gender').value = data.gender;
+                fill('add_nick', data.nickname);
+                fill('add_sid', data.student_id);
+                fill('add_act_no', data.act_id);
+                const mismatches = getIdentityMismatches({
+                    name, nick, sid, act_no, gender
+                }, data);
+                const sameStudentId = sid
+                    && sid === String(data.student_id || '').trim();
+                setSmartMatchNotice(
+                    mismatches.length
+                        ? sameStudentId
+                            ? `⚠ 此${currentIdLabel}已存在，但${mismatches.join('、')}與既有資料不一致，請修正後再送出。`
+                            : `⚠ 輸入的${mismatches.join('、')}與此識別資料的既有紀錄不同，請確認。姓名可能重名，仍可確認後繼續。`
+                        : '已找到既有資料並補齊空白欄位；帶入內容可自行修改或刪除。',
+                    mismatches.length > 0
+                );
+            } else {
+                const activityField = document.getElementById('add_act_no');
+                if (!act_no && result.next_act_no && !manuallyClearedIdentityFields.has('add_act_no')) {
+                    activityField.value = String(result.next_act_no);
+                    activityField.classList.add('auto-filled');
+                    setSmartMatchNotice(`未找到既有資料，已自動帶入下一個活動編號：${result.next_act_no}。`);
+                } else {
+                    setSmartMatchNotice('');
+                }
             }
         }
 
@@ -1030,6 +1129,20 @@
             const matchData = await matchRes.json();
 
             if (matchData.status === 'matched') {
+                const mismatches = getIdentityMismatches(payload, matchData.data);
+                const sameStudentId = payload.sid
+                    && String(payload.sid).trim() === String(matchData.data.student_id || '').trim();
+                if (sameStudentId && mismatches.length) {
+                    alert(
+                        `此${currentIdLabel}已存在，但${mismatches.join('、')}與既有資料不一致；` +
+                        `請確認${currentIdLabel}或修正資料後再送出。`
+                    );
+                    return;
+                }
+                if (mismatches.length && !window.confirm(
+                    `⚠ 輸入的${mismatches.join('、')}與此學號/活動編號的既有紀錄不同。\n\n` +
+                    '若是同名、資料已更新或確認識別資料正確，仍可繼續；否則請返回修正。要繼續送出嗎？'
+                )) return;
                 pendingPayload = payload;
                 await finalSubmitData();
             } else {
